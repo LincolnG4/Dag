@@ -32,7 +32,7 @@ func (d *Digraph) AddEdge(fromID, toID nodeID) error {
 		return err
 	}
 
-	err = from.Connect(to)
+	err = from.ConnectNode(to)
 	if err != nil {
 		return err
 	}
@@ -83,6 +83,26 @@ func (d *Digraph) RemoveNodeByID(id nodeID) error {
 		return fmt.Errorf("node '%s' not in the dag", id)
 	}
 	delete(d.nodes, id)
+	return nil
+}
+
+// Remove an edge from 'fromID' to 'toID' in the graph.
+func (d *Digraph) RemoveEdgeByID(fromID, toID nodeID) error {
+	from, err := d.GetNodeByID(fromID)
+	if err != nil {
+		return fmt.Errorf("from node %s not found: %w", fromID, err)
+	}
+
+	to, err := d.GetNodeByID(toID)
+	if err != nil {
+		return fmt.Errorf("to node %s not found: %w", toID, err)
+	}
+
+	err = from.DisconnectNode(to)
+	if err != nil {
+		return fmt.Errorf("to node %s not found: %w", toID, err)
+	}
+
 	return nil
 }
 

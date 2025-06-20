@@ -94,3 +94,52 @@ func TestGetNodeByID(t *testing.T) {
 		}
 	})
 }
+
+func TestRemoveEdgeByID(t *testing.T) {
+	n1 := &Node{ID: "n1", Value: 1}
+	n2 := &Node{ID: "n2", Value: 2}
+	n3 := &Node{ID: "n3", Value: 3}
+
+	dg, err := NewDigraph(n1, n2, n3)
+	if err != nil {
+		t.Fatalf("failed to create digraph: %v", err)
+	}
+
+	t.Run("Remove existing edge", func(t *testing.T) {
+		err := dg.AddEdge(n1.ID, n2.ID)
+		if err != nil {
+			t.Fatalf("failed to add edge: %v", err)
+		}
+
+		err = dg.RemoveEdgeByID(n1.ID, n2.ID)
+		if err != nil {
+			t.Errorf("expected edge to be removed, got error: %v", err)
+		}
+
+		// Confirm edge is actually removed
+		if len(n1.edgeTo) != 0 {
+			t.Errorf("expected edgeTo to be empty, got %d edges", len(n1.edgeTo))
+		}
+	})
+
+	t.Run("Remove non-existent edge", func(t *testing.T) {
+		err := dg.RemoveEdgeByID(n1.ID, n2.ID)
+		if err == nil {
+			t.Errorf("expected error when removing non-existent edge")
+		}
+	})
+
+	t.Run("Remove edge with non-existent from node", func(t *testing.T) {
+		err := dg.RemoveEdgeByID("invalid", n2.ID)
+		if err == nil {
+			t.Errorf("expected error for invalid from node ID")
+		}
+	})
+
+	t.Run("Remove edge with non-existent to node", func(t *testing.T) {
+		err := dg.RemoveEdgeByID(n1.ID, "invalid")
+		if err == nil {
+			t.Errorf("expected error for invalid to node ID")
+		}
+	})
+}
