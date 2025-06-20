@@ -1,4 +1,4 @@
-package diagraph
+package digraph
 
 import (
 	"fmt"
@@ -15,6 +15,10 @@ type Node struct {
 }
 
 func (n *Node) Connect(to *Node) error {
+	if to == nil {
+		return fmt.Errorf("cannot connect to a nil node")
+	}
+
 	if slices.Contains(n.edgeTo, to) {
 		return fmt.Errorf("from %s already contains %s", n.ID, to.ID)
 	}
