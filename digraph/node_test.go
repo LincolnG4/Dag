@@ -42,6 +42,14 @@ func TestConnect(t *testing.T) {
 			t.Errorf("expected 2 connected nodes, got %d", len(n1.edgeTo))
 		}
 	})
+
+	t.Run("Connect node to itself should fail", func(t *testing.T) {
+		err := n1.ConnectNode(n1)
+		if err == nil {
+			t.Errorf("expected error, got %v", err)
+		}
+
+	})
 }
 
 func TestDisconnectNode(t *testing.T) {

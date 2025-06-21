@@ -5,18 +5,32 @@ import (
 	"slices"
 )
 
-type nodeID string
-
 type Node struct {
-	ID    nodeID
+	ID    string
 	Value int
 
 	edgeTo []*Node // node points to
 }
 
+// Create a new node
+func NewNode(id string, value int) *Node {
+	return &Node{
+		ID:    id,
+		Value: value,
+	}
+}
+
+func (n *Node) EdgeTo() []*Node {
+	return n.edgeTo
+}
+
 func (n *Node) ConnectNode(to *Node) error {
 	if to == nil {
 		return fmt.Errorf("cannot connect to a nil node")
+	}
+
+	if n.ID == to.ID {
+		return fmt.Errorf("cannot connect node to itself")
 	}
 
 	if slices.Contains(n.edgeTo, to) {

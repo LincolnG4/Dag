@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-func newTestNode(id nodeID, val int) *Node {
+func newTestNode(id string, val int) *Node {
 	return &Node{ID: id, Value: val}
 }
 
