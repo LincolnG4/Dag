@@ -1,4 +1,4 @@
-package digraph
+package dag
 
 import (
 	"fmt"

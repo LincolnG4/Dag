@@ -1,26 +1,26 @@
-package digraph
+package dag
 
 import "fmt"
 
-// Create a Directed graph (Digraph)
-type Digraph struct {
+// Create a Directed Acyclic graph (Dag)
+type Dag struct {
 	nodes map[string]*Node // Nodes connected to n by edges pointing from n
 }
 
-// Create the Digraph of nodes without edges. Let it empty to start empty Digraph
-func NewDigraph(nodes ...*Node) (Digraph, error) {
-	d := Digraph{
+// Create the Dag of nodes without edges. Let it empty to start empty Dag
+func NewDag(nodes ...*Node) (Dag, error) {
+	d := Dag{
 		nodes: make(map[string]*Node),
 	}
 
 	err := d.AddNodes(nodes...)
 	if err != nil {
-		return Digraph{}, err
+		return Dag{}, err
 	}
 	return d, nil
 }
 
-func (d *Digraph) GetAllNodes() []*Node {
+func (d *Dag) GetAllNodes() []*Node {
 	n := make([]*Node, 0, len(d.nodes))
 	for _, v := range d.nodes {
 		n = append(n, v)
@@ -29,7 +29,7 @@ func (d *Digraph) GetAllNodes() []*Node {
 }
 
 // Adds an edge from 'fromID' to 'toID' in the graph.
-func (d *Digraph) AddEdge(fromID, toID string) error {
+func (d *Dag) AddEdge(fromID, toID string) error {
 	from, err := d.GetNodeByID(fromID)
 	if err != nil {
 		return err
@@ -49,13 +49,13 @@ func (d *Digraph) AddEdge(fromID, toID string) error {
 }
 
 // check if node exist in dag
-func (d *Digraph) NodeExists(id string) bool {
+func (d *Dag) NodeExists(id string) bool {
 	_, exist := d.nodes[id]
 	return exist
 }
 
 // get node by id
-func (d *Digraph) GetNodeByID(id string) (*Node, error) {
+func (d *Dag) GetNodeByID(id string) (*Node, error) {
 	if !d.NodeExists(id) {
 		return nil, fmt.Errorf("node '%s' not added to the graph", id)
 	}
@@ -63,7 +63,7 @@ func (d *Digraph) GetNodeByID(id string) (*Node, error) {
 }
 
 // add 1 or more node into the diapraph
-func (d *Digraph) AddNodes(nodes ...*Node) error {
+func (d *Dag) AddNodes(nodes ...*Node) error {
 	var err error
 	for _, node := range nodes {
 		err = d.addNode(node)
@@ -74,7 +74,7 @@ func (d *Digraph) AddNodes(nodes ...*Node) error {
 	return nil
 }
 
-func (d *Digraph) addNode(node *Node) error {
+func (d *Dag) addNode(node *Node) error {
 	if node == nil {
 		return fmt.Errorf("node is nil")
 	}
@@ -86,7 +86,7 @@ func (d *Digraph) addNode(node *Node) error {
 }
 
 // remove node by id
-func (d *Digraph) RemoveNodeByID(id string) error {
+func (d *Dag) RemoveNodeByID(id string) error {
 	if !d.NodeExists(id) {
 		return fmt.Errorf("node '%s' not in the dag", id)
 	}
@@ -95,7 +95,7 @@ func (d *Digraph) RemoveNodeByID(id string) error {
 }
 
 // Remove an edge from 'fromID' to 'toID' in the graph.
-func (d *Digraph) RemoveEdgeByID(fromID, toID string) error {
+func (d *Dag) RemoveEdgeByID(fromID, toID string) error {
 	from, err := d.GetNodeByID(fromID)
 	if err != nil {
 		return fmt.Errorf("from node %s not found: %w", fromID, err)
@@ -114,37 +114,91 @@ func (d *Digraph) RemoveEdgeByID(fromID, toID string) error {
 	return nil
 }
 
-func (d *Digraph) Len() int {
+func (d *Dag) Len() int {
 	return len(d.nodes)
 }
 
-func (d *Digraph) HasCycle() bool {
-	return false
+func (d *Dag) HasCycle() bool {
+	return len(d.FindCycle()) > 0
 }
 
-func (d *Digraph) Cycle() []*Node {
-	return nil
+func (d *Dag) FindCycle() []*Node {
+	visited := make(map[string]bool)
+	onStack := make(map[string]bool)
+	parent := make(map[string]string)
+	var cycle []string
+
+	var dfs func(n *Node) bool
+	dfs = func(n *Node) bool {
+		id := n.ID
+		visited[id] = true
+		onStack[id] = true
+
+		for _, neighbor := range n.edgeTo {
+			nid := neighbor.ID
+
+			if !visited[nid] {
+				parent[nid] = id
+				if dfs(neighbor) {
+					return true
+				}
+			} else if onStack[nid] {
+				// Cycle detected
+				cycle = []string{}
+				for x := id; x != nid; x = parent[x] {
+					cycle = append([]string{x}, cycle...)
+				}
+				cycle = append([]string{nid}, cycle...)
+				cycle = append(cycle, nid)
+				return true
+			}
+		}
+
+		onStack[id] = false
+		return false
+	}
+
+	for _, node := range d.GetAllNodes() {
+		if !visited[node.ID] {
+			if dfs(node) {
+				break
+			}
+		}
+	}
+
+	result := []*Node{}
+	for _, id := range cycle {
+		if n, err := d.GetNodeByID(id); err == nil {
+			result = append(result, n)
+		}
+	}
+	return result
+}
+
+func (d *Dag) Validate() error {
+	_, err := d.TopologicalSort()
+	return err
 }
 
 // Calculate the inDegree of each vertex
-func (d *Digraph) inDegree() map[string]int {
+func (d *Dag) inDegree() map[string]int {
 	inDegree := make(map[string]int)
 	for _, from := range d.GetAllNodes() {
 		inDegree[from.ID] = 0
 
 	}
+
 	for _, from := range d.GetAllNodes() {
 		for _, to := range from.edgeTo {
 			inDegree[to.ID]++
 		}
 
 	}
-
 	return inDegree
 }
 
 // Kahn's algorithm for Topological Sorting
-func (d *Digraph) TopologicalSort() ([]*Node, error) {
+func (d *Dag) TopologicalSort() ([]*Node, error) {
 	inDegree := d.inDegree()
 	q := make([]*Node, 0)
 

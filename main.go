@@ -1,10 +1,9 @@
 package main
 
 import (
+	"dag/dag"
 	"fmt"
 	"log"
-
-	"dag/digraph"
 )
 
 func main() {
@@ -17,20 +16,21 @@ func main() {
 		{"4", "1"},
 		{"5", "0"},
 		{"5", "2"},
+		{"2", "5"},
 	}
 
 	// Create nodes with string IDs and dummy value = int(ID)
-	nodes := make([]*digraph.Node, 0, V)
+	nodes := make([]*dag.Node, 0, V)
 	for i := 0; i < V; i++ {
 		id := fmt.Sprintf("%d", i)
-		node := digraph.NewNode(id, i)
+		node := dag.NewNode(id, i)
 		nodes = append(nodes, node)
 	}
 
 	// Create the graph
-	dg, err := digraph.NewDigraph(nodes...)
+	dg, err := dag.NewDag(nodes...)
 	if err != nil {
-		log.Fatalf("Failed to create digraph: %v", err)
+		log.Fatalf("Failed to create dag: %v", err)
 	}
 
 	// Add edges
@@ -58,4 +58,7 @@ func main() {
 	for _, node := range tp {
 		fmt.Print(node.ID, ",")
 	}
+
+	fmt.Println(dg.HasCycle())
+
 }
