@@ -6,11 +6,9 @@ import (
 )
 
 type Node struct {
-	id string
-
-	Name  string
-	Value int
-
+	id     string
+	Name   string
+	Value  int
 	edgeTo []*Node // node points to
 }
 

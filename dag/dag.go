@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-// Create a Directed Acyclic graph (Dag)
+// Dag create a Directed Acyclic graph (Dag)
 type Dag struct {
 	nodes    map[string]*Node  // Nodes connected to n by edges pointing from n
 	nameToID map[string]string // key: Name, value: uuid

@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@xyflow/react": "^12.7.0"
+  },
+  "devDependencies": {
+    "vite": "^6.3.5"
+  }
+}
