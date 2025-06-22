@@ -16,29 +16,31 @@ func main() {
 		{"4", "1"},
 		{"5", "0"},
 		{"5", "2"},
-		{"2", "5"},
-	}
-
-	// Create nodes with string IDs and dummy value = int(ID)
-	nodes := make([]*dag.Node, 0, V)
-	for i := 0; i < V; i++ {
-		id := fmt.Sprintf("%d", i)
-		node := dag.NewNode(id, i)
-		nodes = append(nodes, node)
 	}
 
 	// Create the graph
-	dg, err := dag.NewDag(nodes...)
+	dg, err := dag.NewDag()
 	if err != nil {
 		log.Fatalf("Failed to create dag: %v", err)
 	}
 
+	// Create nodes with string ids and dummy value = int(id)
+	nodes := make([]*dag.Node, 0, V)
+	for i := 0; i < V; i++ {
+		id := fmt.Sprintf("%d", i)
+		node, err := dg.NewNode(id, i)
+		if err != nil {
+			log.Fatalf("Error adding node %s : %v", node.Name, err)
+		}
+		nodes = append(nodes, node)
+	}
+
 	// Add edges
 	for _, edge := range edges {
-		fromID, toID := edge[0], edge[1]
-		err := dg.AddEdge(fromID, toID)
+		from, to := edge[0], edge[1]
+		err := dg.AddEdgeByName(from, to)
 		if err != nil {
-			log.Fatalf("Error adding edge %s -> %s: %v", fromID, toID, err)
+			log.Fatalf("Error adding edge %s -> %s: %v", from, to, err)
 		}
 	}
 
@@ -47,16 +49,16 @@ func main() {
 
 	// Print the graph structure
 	for _, node := range dg.GetAllNodes() {
-		fmt.Printf("Node %s points to: ", node.ID)
+		fmt.Printf("Node %s points to: ", node.Name)
 		for _, neighbor := range node.EdgeTo() {
-			fmt.Printf("%s ", neighbor.ID)
+			fmt.Printf("%s ", neighbor.Name)
 		}
 		fmt.Println()
 	}
 
 	tp, _ := dg.TopologicalSort()
 	for _, node := range tp {
-		fmt.Print(node.ID, ",")
+		fmt.Print(node.Name, ",")
 	}
 
 	fmt.Println(dg.HasCycle())

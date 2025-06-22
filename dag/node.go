@@ -6,18 +6,16 @@ import (
 )
 
 type Node struct {
-	ID    string
+	id string
+
+	Name  string
 	Value int
 
 	edgeTo []*Node // node points to
 }
 
-// Create a new node
-func NewNode(id string, value int) *Node {
-	return &Node{
-		ID:    id,
-		Value: value,
-	}
+func (n *Node) ID() string {
+	return n.id
 }
 
 func (n *Node) EdgeTo() []*Node {
@@ -29,12 +27,12 @@ func (n *Node) ConnectNode(to *Node) error {
 		return fmt.Errorf("cannot connect to a nil node")
 	}
 
-	if n.ID == to.ID {
+	if n.id == to.id {
 		return fmt.Errorf("cannot connect node to itself")
 	}
 
 	if slices.Contains(n.edgeTo, to) {
-		return fmt.Errorf("from %s already contains %s", n.ID, to.ID)
+		return fmt.Errorf("from %s already contains %s", n.id, to.id)
 	}
 	n.edgeTo = append(n.edgeTo, to)
 	return nil
@@ -54,7 +52,7 @@ func (n *Node) DisconnectNode(to *Node) error {
 	}
 
 	if index == -1 {
-		return fmt.Errorf("edge from %s to %s does not exist", n.ID, to.ID)
+		return fmt.Errorf("edge from %s to %s does not exist", n.id, to.id)
 	}
 
 	// Remove edge from slice

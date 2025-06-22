@@ -5,9 +5,9 @@ import (
 )
 
 func TestConnect(t *testing.T) {
-	n1 := &Node{ID: "n1", Value: 10}
-	n2 := &Node{ID: "n2", Value: 20}
-	n3 := &Node{ID: "n3", Value: 30}
+	n1 := &Node{id: "n1", Value: 10}
+	n2 := &Node{id: "n2", Value: 20}
+	n3 := &Node{id: "n3", Value: 30}
 
 	t.Run("Connect new edge", func(t *testing.T) {
 		err := n1.ConnectNode(n2)
@@ -53,9 +53,9 @@ func TestConnect(t *testing.T) {
 }
 
 func TestDisconnectNode(t *testing.T) {
-	n1 := &Node{ID: "n1", Value: 1}
-	n2 := &Node{ID: "n2", Value: 2}
-	n3 := &Node{ID: "n3", Value: 3}
+	n1 := &Node{id: "n1", Value: 1}
+	n2 := &Node{id: "n2", Value: 2}
+	n3 := &Node{id: "n3", Value: 3}
 
 	t.Run("Disconnect existing edge", func(t *testing.T) {
 		err := n1.ConnectNode(n2)

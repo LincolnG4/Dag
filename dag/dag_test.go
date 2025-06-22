@@ -5,7 +5,7 @@ import (
 )
 
 func newTestNode(id string, val int) *Node {
-	return &Node{ID: id, Value: val}
+	return &Node{id: id, Value: val}
 }
 
 func TestAddNodes(t *testing.T) {
@@ -41,7 +41,7 @@ func TestAddNodes(t *testing.T) {
 	})
 }
 
-func TestRemoveNodeByID(t *testing.T) {
+func TestRemoveNodeByid(t *testing.T) {
 	n1 := newTestNode("n1", 1)
 	n2 := newTestNode("n2", 2)
 
@@ -82,8 +82,8 @@ func TestGetNodeByID(t *testing.T) {
 		if err != nil {
 			t.Errorf("unexpected error: %s", err)
 		}
-		if node.ID != "n1" {
-			t.Errorf("expected ID n1, got %s", node.ID)
+		if node.id != "n1" {
+			t.Errorf("expected id n1, got %s", node.id)
 		}
 	})
 
@@ -96,9 +96,9 @@ func TestGetNodeByID(t *testing.T) {
 }
 
 func TestRemoveEdgeByID(t *testing.T) {
-	n1 := &Node{ID: "n1", Value: 1}
-	n2 := &Node{ID: "n2", Value: 2}
-	n3 := &Node{ID: "n3", Value: 3}
+	n1 := &Node{id: "n1", Value: 1}
+	n2 := &Node{id: "n2", Value: 2}
+	n3 := &Node{id: "n3", Value: 3}
 
 	dg, err := NewDag(n1, n2, n3)
 	if err != nil {
@@ -106,12 +106,12 @@ func TestRemoveEdgeByID(t *testing.T) {
 	}
 
 	t.Run("Remove existing edge", func(t *testing.T) {
-		err := dg.AddEdge(n1.ID, n2.ID)
+		err := dg.AddEdgeByID(n1.id, n2.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
 
-		err = dg.RemoveEdgeByID(n1.ID, n2.ID)
+		err = dg.RemoveEdgeByID(n1.id, n2.id)
 		if err != nil {
 			t.Errorf("expected edge to be removed, got error: %v", err)
 		}
@@ -123,23 +123,23 @@ func TestRemoveEdgeByID(t *testing.T) {
 	})
 
 	t.Run("Remove non-existent edge", func(t *testing.T) {
-		err := dg.RemoveEdgeByID(n1.ID, n2.ID)
+		err := dg.RemoveEdgeByID(n1.id, n2.id)
 		if err == nil {
 			t.Errorf("expected error when removing non-existent edge")
 		}
 	})
 
 	t.Run("Remove edge with non-existent from node", func(t *testing.T) {
-		err := dg.RemoveEdgeByID("invalid", n2.ID)
+		err := dg.RemoveEdgeByID("invalid", n2.id)
 		if err == nil {
-			t.Errorf("expected error for invalid from node ID")
+			t.Errorf("expected error for invalid from node id")
 		}
 	})
 
 	t.Run("Remove edge with non-existent to node", func(t *testing.T) {
-		err := dg.RemoveEdgeByID(n1.ID, "invalid")
+		err := dg.RemoveEdgeByID(n1.id, "invalid")
 		if err == nil {
-			t.Errorf("expected error for invalid to node ID")
+			t.Errorf("expected error for invalid to node id")
 		}
 	})
 }
@@ -190,7 +190,7 @@ func TestHasCycle(t *testing.T) {
 			t.Errorf("expected nodes to be added, got error: %s", err)
 		}
 
-		err = d.AddEdge(n1.ID, n2.ID)
+		err = d.AddEdgeByID(n1.id, n2.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
@@ -213,12 +213,12 @@ func TestHasCycle(t *testing.T) {
 			t.Errorf("expected nodes to be added, got error: %s", err)
 		}
 
-		err = d.AddEdge(n1.ID, n2.ID)
+		err = d.AddEdgeByID(n1.id, n2.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
 
-		err = d.AddEdge(n2.ID, n1.ID)
+		err = d.AddEdgeByID(n2.id, n1.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
@@ -243,7 +243,7 @@ func TestFindCycle(t *testing.T) {
 			t.Errorf("expected nodes to be added, got error: %s", err)
 		}
 
-		err = d.AddEdge(n1.ID, n2.ID)
+		err = d.AddEdgeByID(n1.id, n2.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
@@ -268,12 +268,12 @@ func TestFindCycle(t *testing.T) {
 			t.Errorf("expected nodes to be added, got error: %s", err)
 		}
 
-		err = d.AddEdge(n1.ID, n2.ID)
+		err = d.AddEdgeByID(n1.id, n2.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
 
-		err = d.AddEdge(n2.ID, n1.ID)
+		err = d.AddEdgeByID(n2.id, n1.id)
 		if err != nil {
 			t.Fatalf("failed to add edge: %v", err)
 		}
@@ -296,10 +296,10 @@ func TestInDegree(t *testing.T) {
 			t.Fatalf("failed to create dag: %v", err)
 		}
 
-		_ = d.AddEdge("n1", "n2")
-		_ = d.AddEdge("n1", "n3")
-		_ = d.AddEdge("n2", "n3")
-		_ = d.AddEdge("n3", "n4")
+		_ = d.AddEdgeByID("n1", "n2")
+		_ = d.AddEdgeByID("n1", "n3")
+		_ = d.AddEdgeByID("n2", "n3")
+		_ = d.AddEdgeByID("n3", "n4")
 
 		expected := map[string]int{
 			"n1": 0,
@@ -329,10 +329,10 @@ func TestTopologicalSort(t *testing.T) {
 			t.Fatalf("failed to create dag: %v", err)
 		}
 
-		_ = d.AddEdge("n1", "n2")
-		_ = d.AddEdge("n1", "n3")
-		_ = d.AddEdge("n2", "n3")
-		_ = d.AddEdge("n3", "n4")
+		_ = d.AddEdgeByID("n1", "n2")
+		_ = d.AddEdgeByID("n1", "n3")
+		_ = d.AddEdgeByID("n2", "n3")
+		_ = d.AddEdgeByID("n3", "n4")
 
 		sorted, err := d.TopologicalSort()
 		if err != nil {
@@ -341,7 +341,7 @@ func TestTopologicalSort(t *testing.T) {
 
 		order := make(map[string]int)
 		for i, node := range sorted {
-			order[node.ID] = i
+			order[node.id] = i
 		}
 
 		// Validate topological order
@@ -369,8 +369,8 @@ func TestTopologicalSort(t *testing.T) {
 			t.Fatalf("failed to create dag: %v", err)
 		}
 
-		_ = d.AddEdge("n1", "n2")
-		_ = d.AddEdge("n2", "n1") // introduces cycle
+		_ = d.AddEdgeByID("n1", "n2")
+		_ = d.AddEdgeByID("n2", "n1") // introduces cycle
 
 		_, err = d.TopologicalSort()
 		if err == nil {
